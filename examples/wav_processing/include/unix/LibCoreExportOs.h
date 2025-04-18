@@ -1,0 +1,1 @@
+#define LIBCORE_EXPORT

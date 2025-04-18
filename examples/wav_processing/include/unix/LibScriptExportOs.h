@@ -1,0 +1,3 @@
+#define LIBSCRIPT_EXPORT
+
+#define OS_LINUX 1
