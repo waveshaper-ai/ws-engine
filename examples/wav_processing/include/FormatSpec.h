@@ -12,6 +12,8 @@
 #include <sstream>
 #include <string>
 #include <type_traits>
+#include <memory>
+
 
 namespace TL
 {
