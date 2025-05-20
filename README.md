@@ -39,6 +39,13 @@ Full API documentation is generated using Doxygen and is available online:
 
 The documentation is automatically updated with each release.
 
+## Minimum Requirements:
+Required CPU Features: AVX2 and other advanced instruction sets (Intel 4th generation "Haswell" or AMD equivalent and newer)
+[See Known Issues](#known-issues) for troubleshooting 
+
+### Known Issues: 
+Not Compatible With: Intel Sandy Bridge processors (like i5-2300, Intel 2nd generation) which only support first-generation AVX.
+
 
 ## Example - Wav Processor
 The example provided shows how to use AudioModel to load a model and feed it a wav file.
