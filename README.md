@@ -82,5 +82,5 @@ make
 ```
 ## Space Helmet use example
 ```bash
-./wav_processor ../audio_samples/SpaceHelmet_before.wav ../output/SpaceHelmet_output.wav -m ../models/SpaceHelmet -pf 0.5
+./wav_processor ../audio_samples/SpaceHelmet_before.wav ../output/SpaceHelmet_output.wav -m ../models/VoiceModSpaceHelmet -pf 0.5
 ```
