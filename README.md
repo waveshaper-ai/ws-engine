@@ -84,3 +84,6 @@ make
 ```bash
 ./wav_processor ../audio_samples/SpaceHelmet_before.wav ../output/SpaceHelmet_output.wav -m ../models/VoiceModSpaceHelmet -pf 0.5
 ```
+
+# Commercial License Notice
+This repository showcases Waveshaper AI's commercial audio processing models and inference engine for evaluation and testing purposes only. The models and inference engine are proprietary commercial software and are not open source. Audio outputs from this testing environment are intentionally limited with silenced portions to demonstrate capabilities while protecting commercial interests. For commercial licensing, full-featured models, and production deployment rights, please contact us at hello@waveshaper.ai or visit https://waveshaper.ai to discuss licensing options tailored to your needs.
