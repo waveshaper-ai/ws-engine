@@ -1,3 +1,14 @@
+# Waveshaper Inference Engine
+
+The Waveshaper (WS) Inference Engine is a high-performance audio processing library that leverages AI models to transform and enhance audio signals in real-time. Built for professional audio applications, it provides state-of-the-art microphone modeling, voice effects processing, spectral enhancement and various de-noising capabilities (de-echoing, de-reverb, etc.). The engine is designed to be embedded in commercial software and hardware products. Its integration simplicity abstracts sound engineering and machine learning complexities.
+
+## Key Features
+
+- **Real-time Processing**: Optimized for low-latency audio applications
+- **Pre-trained Models**: Includes three production-ready models for immediate use
+- **Cross-platform**: Currently supports Linux, Windows and Mac (only the Linux version is available on the repo. Mac and Windows coming soon)
+- **Flexible Parameters**: Models support runtime parameter adjustment for dynamic control
+
 # Project Structure
 
 This repository contains the WS Inference Engine for audio processing. Below is the organization of the project:
