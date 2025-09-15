@@ -1,7 +1,7 @@
-#ifndef _TL_BASICTYPES_H
-#define _TL_BASICTYPES_H
+#ifndef _WS_BASICTYPES_H
+#define _WS_BASICTYPES_H
 
-#include "OSDefs.h"
+#include "LibUtilExportOs.h"
 #include <cstdint>
 
 using s64 = std::int64_t;

@@ -1,14 +1,3 @@
-# Waveshaper Real-time Audio Inference Engine
-
-The Waveshaper (WS) Inference Engine is a high-performance audio processing library that leverages AI models to transform and enhance audio signals in real-time. Built for professional audio applications, it provides state-of-the-art microphone modeling, voice effects processing, spectral enhancement and various de-noising capabilities (de-echoing, de-reverb, etc.). The engine is designed to be embedded in commercial software and hardware products. Its integration simplicity abstracts sound engineering and machine learning complexities.
-
-## Key Features
-
-- **Real-time Processing**: Optimized for low-latency audio applications
-- **Pre-trained Models**: Includes three production-ready models for immediate use
-- **Cross-platform**: Currently supports Linux, Windows and Mac (only the Linux version is available on the repo. Mac and Windows coming soon)
-- **Flexible Parameters**: Models support runtime parameter adjustment for dynamic control
-
 # Project Structure
 
 This repository contains the WS Inference Engine for audio processing. Below is the organization of the project:
@@ -26,7 +15,9 @@ Header files required for using the inference engine:
 - `AudioModel.h`: Main interface for audio model processing
 
 ### `/lib/linux`
-Contains the WS inference engine binary for Linux platforms. This is the core component that performs the audio inference.
+### `/lib/windows`
+### `/lib/macos`
+Contains the WS inference engine binary for Linux / Windows / Macos platforms. This is the core component that performs the audio inference.
 
 ### `/examples/wav_processing`
 Example code demonstrating how to use the WS inference engine with WAV files. This serves as a practical guide for implementing the engine in your own applications.
@@ -49,13 +40,6 @@ Full API documentation is generated using Doxygen and is available online:
 - [Full API Documentation](https://waveshaper-ai.github.io/ws-engine-docs/) - Complete reference documentation
 
 The documentation is automatically updated with each release.
-
-## Minimum Requirements:
-Required CPU Features: AVX2 and other advanced instruction sets (Intel 4th generation "Haswell" or AMD equivalent and newer)
-[See Known Issues](#known-issues) for troubleshooting 
-
-### Known Issues: 
-Not Compatible With: Intel Sandy Bridge processors (like i5-2300, Intel 2nd generation) which only support first-generation AVX.
 
 
 ## Example - Wav Processor
@@ -93,8 +77,5 @@ make
 ```
 ## Space Helmet use example
 ```bash
-./wav_processor ../audio_samples/SpaceHelmet_before.wav ../output/SpaceHelmet_output.wav -m ../models/VoiceModSpaceHelmet -pf 0.5
+./wav_processor ../audio_samples/SpaceHelmet_before.wav ../output/SpaceHelmet_output.wav -m ../models/SpaceHelmet -pf 0.5
 ```
-
-# Commercial License Notice
-This repository showcases Waveshaper AI's commercial audio processing models and inference engine for evaluation and testing purposes only. The models and inference engine are proprietary commercial software and are not open source. Audio outputs from this testing environment are intentionally limited with silenced portions to demonstrate capabilities while protecting commercial interests. For commercial licensing, full-featured models, and production deployment rights, please contact us at hello@waveshaper.ai or visit https://waveshaper.ai to discuss licensing options tailored to your needs.

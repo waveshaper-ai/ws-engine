@@ -1,12 +1,12 @@
-#ifndef _TL_EXCEPTION_H
-#define _TL_EXCEPTION_H
+#ifndef _WS_EXCEPTION_H
+#define _WS_EXCEPTION_H
 
 #include <stdexcept>
 #include <string>
 
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
 class Exception : public std::exception
 {
@@ -36,7 +36,7 @@ private:
     std::string mMessage{};
 };
 
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
-#endif // _TL_EXCEPTION_H
+#endif // _WS_EXCEPTION_H

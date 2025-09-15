@@ -1,5 +1,5 @@
-#ifndef _TL_STRFORMAT_H
-#define _TL_STRFORMAT_H
+#ifndef _WS_STRFORMAT_H
+#define _WS_STRFORMAT_H
 
 #include "Constants.h"
 #include "FormatPack.h"
@@ -7,9 +7,9 @@
 #include <algorithm>
 #include <bitset>
 
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
 namespace Format
 {
@@ -36,7 +36,7 @@ inline std::string formatStr(StrType const& s, Ts&&... ts)
 }
 
 } // namespace Format
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
-#endif // _TL_STRFORMAT_H
+#endif // _WS_STRFORMAT_H

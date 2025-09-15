@@ -2,7 +2,7 @@
 
 #include "BasicTypes.h"
 #include "DynArray.h"
-#include "LibCoreExportOs.h"
+#include "LibUtilExportOs.h"
 #include <functional>
 #include <string>
 
@@ -12,15 +12,15 @@
 
 class CmdLineParserUT;
 
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
 /// Used to track, parse and validate the given command-line based on the
 /// different given parameters (of 3 types: arguments / swtiches /  options).
 /// Application usage is generated automatically if incorrect number of paramaters
 /// or wrong option names are given - everything outputs to console.
-class LIBCORE_EXPORT CmdLineParser
+class LIBUTIL_EXPORT CmdLineParser
 {
     static constexpr u32 MAX_PARAMS{20};
     struct Param
@@ -52,7 +52,7 @@ class LIBCORE_EXPORT CmdLineParser
     };
 
     using Visitor = std::function<void(std::string const& paramName, std::string const& paramValue)>;
-    using Params = TL::LibCore::DynArray<Param, MAX_PARAMS>;
+    using Params = WS::Util::DynArray<Param, MAX_PARAMS>;
 
 public:
     CmdLineParser();
@@ -74,7 +74,7 @@ public:
     /// Parses the actual given command-line and matches argument/switch/option
     /// given. If a visitor is given, the associated handler of the argument/swith/option
     /// will be called immediately, as it is found and parsed from the cmd-line.
-    bool validateCmdLine(u32 argc, const char** argv, Visitor visitor = Visitor{nullptr}, bool ignoreTM = false);
+    bool validateCmdLine(u32 argc, const char** argv, Visitor visitor = Visitor{nullptr});
 
     /// Once ValidateCmdLine() has been called, prints the values of all knonw parameters to sdt::cout.
     bool showParameterValues(std::string const& title);
@@ -116,5 +116,5 @@ private:
 
     friend class ::CmdLineParserUT;
 };
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS

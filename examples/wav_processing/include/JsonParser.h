@@ -1,16 +1,16 @@
-#ifndef _TL_JSONPARSER_H
-#define _TL_JSONPARSER_H
+#ifndef _WS_JSONPARSER_H
+#define _WS_JSONPARSER_H
 
-#include "LibScriptExportOs.h"
+#include "LibUtilExportOs.h"
 #include <string>
 
-namespace TL
+namespace WS
 {
-namespace LibScript
+namespace Util
 {
 class Scriptable;
 
-class LIBSCRIPT_EXPORT JsonParser
+class LIBUTIL_EXPORT JsonParser
 {
 public:
     JsonParser() = default;
@@ -32,7 +32,7 @@ public:
     static bool writeFileFromStr(std::string const& pathToFile, std::string const& inJsonString);
 };
 
-} // namespace LibScript
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
 #endif

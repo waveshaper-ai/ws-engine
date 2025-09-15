@@ -1,19 +1,19 @@
-#ifndef _TL_RAPIDWRAPPER_H
-#define _TL_RAPIDWRAPPER_H
+#ifndef _WS_RAPIDWRAPPER_H
+#define _WS_RAPIDWRAPPER_H
 
 #include "BasicTypes.h"
-#include "LibScriptExportOs.h"
+#include "LibUtilExportOs.h"
 #include "ScriptException.h"
 #include <string>
 #include <vector>
+#include "DataBuffer.h"
 
-
-namespace TL
+namespace WS
 {
-namespace LibScript
+namespace Util
 {
 
-class LIBSCRIPT_EXPORT RapidWrapper
+class LIBUTIL_EXPORT RapidWrapper
 {
     struct Internal;
     std::unique_ptr<Internal> mInternal;
@@ -94,49 +94,58 @@ public:
     /// Stream out the document to file or string
     void writeToFile(std::string const&);
     void writeToString(std::string& outJsonStr);
-};
+}; // <-- CLASS DEFINITION ENDS HERE
 
+// NOW put the template specializations AFTER the class definition
 #ifdef OS_WINDOWS
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::writeValue<bool>(bool const& data);
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<bool>(bool const& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::writeValue<s32>(s32 const& data);
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<s32>(s32 const& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::writeValue<u32>(u32 const& data);
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<u32>(u32 const& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::writeValue<float>(float const& data);
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<s16>(s16 const& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::writeValue<double>(double const& data);
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<u16>(u16 const& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::writeValue<s64>(s64 const& data);
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<float>(float const& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::writeValue<u64>(u64 const& data);
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<double>(double const& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::writeValue<std::string>(std::string const& data);
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<s64>(s64 const& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::writeValue<TL::LibScript::DataBuffer>(TL::LibScript::DataBuffer const& data);
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<u64>(u64 const& data);
+template <>
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<std::string>(std::string const& data);
+template <>
+LIBUTIL_EXPORT bool RapidWrapper::writeValue<WS::Util::DataBuffer>(WS::Util::DataBuffer const& data);
 
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::readValue<bool>(bool& data);
+LIBUTIL_EXPORT bool RapidWrapper::readValue<bool>(bool& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::readValue<s32>(s32& data);
+LIBUTIL_EXPORT bool RapidWrapper::readValue<s32>(s32& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::readValue<u32>(u32& data);
+LIBUTIL_EXPORT bool RapidWrapper::readValue<u32>(u32& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::readValue<float>(float& data);
+LIBUTIL_EXPORT bool RapidWrapper::readValue<s16>(s16& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::readValue<double>(double& data);
+LIBUTIL_EXPORT bool RapidWrapper::readValue<u16>(u16& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::readValue<s64>(s64& data);
+LIBUTIL_EXPORT bool RapidWrapper::readValue<float>(float& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::readValue<u64>(u64& data);
+LIBUTIL_EXPORT bool RapidWrapper::readValue<double>(double& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::readValue<std::string>(std::string& data);
+LIBUTIL_EXPORT bool RapidWrapper::readValue<s64>(s64& data);
 template <>
-LIBSCRIPT_EXPORT bool RapidWrapper::readValue<TL::LibScript::DataBuffer>(TL::LibScript::DataBuffer& data);
+LIBUTIL_EXPORT bool RapidWrapper::readValue<u64>(u64& data);
+template <>
+LIBUTIL_EXPORT bool RapidWrapper::readValue<std::string>(std::string& data);
+template <>
+LIBUTIL_EXPORT bool RapidWrapper::readValue<WS::Util::DataBuffer>(WS::Util::DataBuffer& data);
 #endif
 
-} // namespace LibScript
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
 #endif

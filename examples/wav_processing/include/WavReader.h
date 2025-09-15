@@ -1,7 +1,6 @@
 #pragma once
 #include <fstream>
 #include <iostream>
-
 /* MAX_READ_BUF_LEN is a constant for how many bytes to read per sample.
  * Should be enough fo:
  * (bytes per sample) * (num channels)
@@ -10,7 +9,6 @@
  * 256 is overkill.. but there could be many channels
  */
 #define MAX_READ_BUF_LEN 256
-
 namespace WS
 {
 class WavReader
@@ -22,12 +20,10 @@ public:
         unsigned int size; /* Size of the chunk */
         unsigned int pos; /* Current position used for tracking */
     };
-
     WavReader();
     WavReader(std::string const& filePath);
     WavReader(std::string const& filePath, std::string const& outputFile);
     ~WavReader();
-
     bool load(std::string const& filePath);
     bool load(std::string const& filePath, std::string const& outputFile);
     size_t getNumSamplesPerChannel();
@@ -55,7 +51,6 @@ private:
     void copyToBuffer(size_t bytesToRead, float* bufferToFill, size_t numSamplesToCopy);
     void checkForExceptions(int channel = 0, size_t bufferSize = 0);
     void sampleToFile(float sample);
-
     chunkHdr riff;
     chunkHdr wave;
     chunkHdr chk;
@@ -63,27 +58,34 @@ private:
     std::ifstream wavFile;
     unsigned int sampleRate, byteRate;
     unsigned short audioFormat, numChannels, blockAlign, bitsPerSample, extraSize;
+
     FILE* outWavFile = nullptr;
     size_t srcRiffSize = 0;
     unsigned int srcDataSize = 0;
     size_t dataHdrSizeOffset = 0;
     size_t riffSizeOffset = 0;
     size_t writtenSamples = 0;
+
     size_t mBufferSize = 0;
     size_t numSamplesRead = 0;
     bool isEofLReached = false;
     bool isEofReached = false;
+
     int maxNumOfChannels = 2;
+
     float* bufferToFillR = nullptr;
     bool writeToOutput = false;
     size_t headerDataSizeOffset = 0;
+
     unsigned int fmtPosition = 0;
     unsigned int dataPosition = 0;
 
 public:
     bool createFileFromData(std::string const& filePath, struct WavReader::chunkHdr& riff, struct WavReader::chunkHdr& wave, struct WavReader::chunkHdr& chk,
         int fmtPosition, int dataPosition, int extraSize, unsigned short audioFormat, unsigned short numChannels, unsigned short sampleRate, unsigned int byteRate, unsigned short bitsPerSample, unsigned short blockAlign);
+
     bool loadOut(std::string const& outputFile);
+
     chunkHdr getRiff() const;
     chunkHdr getWave() const;
     chunkHdr getChk() const;
@@ -97,6 +99,7 @@ public:
     unsigned int getByteRate();
     unsigned short getBitsPerSample();
     unsigned short getExtraSize();
+
     bool writeSpecToJSON(std::string const& jsonFileName);
     // bool createFileFromJson(std::string const &inJsonConfigPathName, std::string outputFileName);
 };

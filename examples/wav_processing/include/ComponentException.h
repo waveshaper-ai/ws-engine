@@ -1,18 +1,18 @@
-#ifndef _TL_COMPONENTEXCEPTION_H
-#define _TL_COMPONENTEXCEPTION_H
+#ifndef _WS_COMPONENTEXCEPTION_H
+#define _WS_COMPONENTEXCEPTION_H
 #include "Exception.h"
 #include "StrFormat.h"
 #include <exception>
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
-/// Class to handle exceptions in LibCore and all components libraries.
+/// Class to handle exceptions in Util and all components libraries.
 /// This class to be used as the base class for all the Exception per components.
 class ComponentException : public Exception
 {
 protected:
-    ComponentException() = default;
+    ComponentException() = delete;
     ComponentException(ComponentException&&) = default;
     ComponentException(ComponentException const& rhs) = default;
     explicit ComponentException(std::string&& compName, std::string&& msg) noexcept
@@ -31,6 +31,6 @@ protected:
 private:
     std::string mCompName;
 };
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS
 #endif
