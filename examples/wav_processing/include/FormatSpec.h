@@ -1,5 +1,5 @@
-#ifndef _TL_FORMATSPEC_H
-#define _TL_FORMATSPEC_H
+#ifndef _WS_FORMATSPEC_H
+#define _WS_FORMATSPEC_H
 
 #include "Constants.h"
 #include "FormatException.h"
@@ -9,15 +9,14 @@
 #include <chrono>
 #include <climits>
 #include <iomanip>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <type_traits>
-#include <memory>
 
-
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
 namespace Format
 {
@@ -72,7 +71,7 @@ public:
                 throwFormatExcep("Wrong format specifier for base: ", sBegin, sEnd);
             }
 
-            StrIterType const endOfNumberIter{std::find_if_not(curIter, sEnd, &LibCore::Constants::isDigit)};
+            StrIterType const endOfNumberIter{std::find_if_not(curIter, sEnd, &Util::Constants::isDigit)};
             if(curIter != endOfNumberIter)
             {
                 mIntegerWidth.first = true;
@@ -295,7 +294,8 @@ inline std::string cleanControllChar(std::string const& src)
     // remove consecutive controll characters
     std::string retVal{src};
     retVal.erase(std::string::const_iterator{std::unique(std::begin(retVal), std::end(retVal),
-                     [](std::string::value_type const& c1, std::string::value_type const& c2) -> bool { return (c1 == FormatSpecStart) && (c1 == c2); })},
+                     [](std::string::value_type const& c1, std::string::value_type const& c2) -> bool
+                     { return (c1 == FormatSpecStart) && (c1 == c2); })},
         std::cend(retVal));
     return retVal;
 }
@@ -315,8 +315,7 @@ public:
 };
 
 template <typename T>
-class ConvertWithSpec<T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, bool>::value>::type>
-    final
+class ConvertWithSpec<T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, bool>::value>::type> final
 {
 public:
     std::string operator()(FormatSpec const& formatSpec, T const& val) const
@@ -396,10 +395,10 @@ public:
 };
 
 template <typename T>
-class ConvertWithSpec<T, typename std::enable_if<!std::is_void<typename std::result_of<T()>::type>::value>::type> final
+class ConvertWithSpec<T, typename std::enable_if<!std::is_void<typename std::invoke_result_t<T()>::type>::value>::type> final
 {
 public:
-    using Retype = typename std::result_of<T()>::type;
+    using Retype = typename std::invoke_result_t<T()>::type;
     std::string operator()(FormatSpec const& fs, T const& val) const
     {
         return ConvertWithSpec<Retype>()(fs, val());
@@ -517,7 +516,7 @@ public:
 };
 
 } // namespace Format
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
-#endif // _TL_FORMATSPEC_H
+#endif // _WS_FORMATSPEC_H

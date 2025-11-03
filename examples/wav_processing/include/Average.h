@@ -1,12 +1,13 @@
 #pragma once
 
 #include "BasicTypes.h"
+#include <cfloat>
 #include <cmath>
 #include <vector>
 
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
 /// Average is an utility class that help compute mean, standard deviation
 /// and exponential average on a list of elements. It can be used with
@@ -288,7 +289,7 @@ TYPE Average<TYPE>::computeStd() const
         int histCnt = _histIdx + 1;
         if(_histLooped == false && (histCnt == 0 || histCnt == 1))
         {
-            return FLOAT_MAX;
+            return FLT_MAX;
         }
         else if(_histLooped == false)
         {
@@ -318,5 +319,5 @@ inline bool Average<TYPE>::initialized() const
     return _maxLength > 0;
 }
 
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS

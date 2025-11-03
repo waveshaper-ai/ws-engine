@@ -3,13 +3,13 @@
 #include "BasicTypes.h"
 #include <array>
 #include <assert.h>
+#include <cstddef>
 
 #define CL_ASSERT(arg) assert(arg);
-#define _NOEXCEPT
 
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
 /// A std array container that acts like an std::vector within a fixed size container.
 /// Adding ways to pushback and iterate through a variable amount of
@@ -86,8 +86,7 @@ public:
     { // return iterator for end of mutable sequence
 #ifdef OS_WINDOWS
         return iterator{Parent::data(), _size};
-#endif
-#ifdef OS_LINUX
+#else
         return iterator{Parent::data() + _size};
 #endif
     }
@@ -96,8 +95,7 @@ public:
     { // return iterator for beginning of nonmutable sequence
 #ifdef OS_WINDOWS
         return const_iterator{Parent::data(), _size};
-#endif
-#ifdef OS_LINUX
+#else
         return const_iterator{Parent::data() + _size};
 #endif
     }
@@ -151,5 +149,5 @@ private:
     std::size_t _size;
 };
 
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS

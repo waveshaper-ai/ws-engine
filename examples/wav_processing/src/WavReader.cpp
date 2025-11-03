@@ -33,6 +33,7 @@ float convert16BitsToFloat(unsigned char* b)
 
 float convert24BitsToFloat(unsigned char* b)
 {
+
     /* Takes 3 bytes from the data stream and reverses them to convert to signed int (4 bytes).
      *
      * Since we only used 3 bytes, the last byte of the int is 0, so to get a float value scaled to
@@ -45,6 +46,7 @@ float convert24BitsToFloat(unsigned char* b)
 
 void convertFloatTo24Bits(unsigned char* buf, float* f)
 {
+
     int32_t reint = static_cast<int32_t>(*(f) * 8388608.F);
 
     buf[2] = static_cast<uint8_t>(reint >> 16) & 0xFF;
@@ -310,57 +312,57 @@ bool WavReader::writeSpecToJSON(std::string const& jsonFileName)
 {
     if(!wavFile.is_open())
         return false;
-/*
-{
-    "header_data": [
-        {
-            "id": "RIFF",
-            "size": 53365588,
-            "pos": 4
-        },
-        {
-            "id": "WAVE",
-            "size": 53365584,
-            "pos": 16
-        },
-        {
-            "id": "data",
-            "size": 53157888,
-            "pos": 0
-        }
-    ],
-    "fmt_position": 16,
-    "data_position": 53157888,
-    "audio_format": 1,
-    "num_channels": 1,
-    "sample_rate": 44100,
-    "byte_rate": 88200,
-    "extra_size": 42712,
-    "block_align": 2,
-    "bits_per_sample": 16,
-    "number_of_samples": 26578944
-}
-*/
+    /*
+    {
+        "header_data": [
+            {
+                "id": "RIFF",
+                "size": 53365588,
+                "pos": 4
+            },
+            {
+                "id": "WAVE",
+                "size": 53365584,
+                "pos": 16
+            },
+            {
+                "id": "data",
+                "size": 53157888,
+                "pos": 0
+            }
+        ],
+        "fmt_position": 16,
+        "data_position": 53157888,
+        "audio_format": 1,
+        "num_channels": 1,
+        "sample_rate": 44100,
+        "byte_rate": 88200,
+        "extra_size": 42712,
+        "block_align": 2,
+        "bits_per_sample": 16,
+        "number_of_samples": 26578944
+    }
+    */
     // Now write the stuff.
-    TL::LibScript::RapidWrapper rwrap;
-    TL::LibScript::JsonWriter writer{&rwrap};
+    WS::Util::RapidWrapper rwrap;
+    WS::Util::JsonWriter writer{&rwrap};
 
     writer.writeArrayBegin("header_data");
 
     writer.writeObjectBegin("");
-    writer.writeValuePair("id", std::string{"RIFF"});
+    writer.writeValuePair("id", std::string("RIFF"));
     writer.writeValuePair("size", riff.size);
     writer.writeValuePair("pos", riff.pos);
     writer.writeObjectEnd();
 
     writer.writeObjectBegin("");
-    writer.writeValuePair("id", std::string{"WAVE"});
+    writer.writeValuePair("id", std::string("WAVE"));
     writer.writeValuePair("size", wave.size);
     writer.writeValuePair("pos", wave.pos);
     writer.writeObjectEnd();
 
     writer.writeObjectBegin("");
-    writer.writeValuePair("id", std::string{"data"});
+    writer.writeValuePair("id", std::string("data"));
     writer.writeValuePair("size", chk.size);
     writer.writeValuePair("pos", chk.pos);
     writer.writeObjectEnd();
@@ -369,15 +371,17 @@ bool WavReader::writeSpecToJSON(std::string const& jsonFileName)
 
     writer.writeValuePair("fmt_position", fmtPosition);
     writer.writeValuePair("data_position", dataPosition);
-    writer.writeValuePair("audio_format", u32{audioFormat});
-    writer.writeValuePair("num_channels", u32{numChannels});
+    writer.writeValuePair("audio_format", audioFormat);
+    writer.writeValuePair("num_channels", numChannels);
     writer.writeValuePair("sample_rate", sampleRate);
     writer.writeValuePair("byte_rate", byteRate);
-    writer.writeValuePair("extra_size", u32{extraSize});
-    writer.writeValuePair("block_align", u32{blockAlign});
-    writer.writeValuePair("bits_per_sample", u32{bitsPerSample});
-    writer.writeValuePair("data_header_size_offset", dataHdrSizeOffset);
-    writer.writeValuePair("number_of_samples", getNumSamplesPerChannel());
+    writer.writeValuePair("extra_size", extraSize);
+    writer.writeValuePair("block_align", blockAlign);
+    writer.writeValuePair("bits_per_sample", bitsPerSample);
+    u64 hdrSizeOffset{dataHdrSizeOffset};
+    writer.writeValuePair("data_header_size_offset", hdrSizeOffset);
+    u64 samplesPerChannel{getNumSamplesPerChannel()};
+    writer.writeValuePair("number_of_samples", samplesPerChannel);
 
     writer.writeToFile(jsonFileName);
     return true;
@@ -388,9 +392,9 @@ bool WavReader::writeSpecToJSON(std::string const& jsonFileName)
 //   JsonConfig config;
 //   try
 //   {
-//     TL::LibScript::JsonParser::parseScript(inJsonConfigPathName, "", config);
+//     WS::Util::JsonParser::parseScript(inJsonConfigPathName, "", config);
 //   }
-//   catch (TL::LibScript::ScriptException &e)
+//   catch (WS::Util::ScriptException &e)
 //   {
 //     std::cout << "Could not find the file: " << e.what() << std::endl;
 //     return 1;
@@ -555,6 +559,7 @@ bool WavReader::writeToFile(float* bufferToFileL, float* bufferToFileR, size_t b
         for(int writeSampleCtr = 0; writeSampleCtr < buffSize; writeSampleCtr++)
         {
             /* Sample for chan 0 */
+
             float chanTmp = clamp(bufferToFileL[writeSampleCtr], -1., 1.);
             uint8_t chanBytes[3];
             convertFloatTo24Bits(chanBytes, &chanTmp);
@@ -562,17 +567,6 @@ bool WavReader::writeToFile(float* bufferToFileL, float* bufferToFileR, size_t b
             fwrite(&chanBytes[0], 1, 1, outWavFile);
             fwrite(&chanBytes[1], 1, 1, outWavFile);
             fwrite(&chanBytes[2], 1, 1, outWavFile);
-
-            /* Sample for chan 1 */
-            if(bufferToFileR != nullptr)
-            {
-                chanTmp = clamp(bufferToFileR[writeSampleCtr], -1.0f, 1.0f);
-                convertFloatTo24Bits(chanBytes, &chanTmp);
-
-                fwrite(&chanBytes[0], 1, 1, outWavFile);
-                fwrite(&chanBytes[1], 1, 1, outWavFile);
-                fwrite(&chanBytes[2], 1, 1, outWavFile);
-            }
         }
     }
 
@@ -785,6 +779,7 @@ int WavReader::getBitDepth()
 
 void WavReader::fillDataBuffer(float* bufferToFill, bool enoughSamplesToFillBuffer)
 {
+
     checkForExceptions(0, mBufferSize);
 
     /*
@@ -883,7 +878,7 @@ void WavReader::copyToBuffer(size_t bytesToRead, float* bufferToFill, size_t num
         case 24:
             sampleCh0 = convert24BitsToFloat(buffer);
             if(numChannels == maxNumOfChannels)
-                sampleCh1 = convert24BitsToFloat(&buffer[numBytes]);
+                sampleCh1 = convert16BitsToFloat(&buffer[numBytes]);
             break;
         default:
             std::cout << "ERROR! Unsupported bit depth of: " << bitsPerSample << std::endl;

@@ -1,20 +1,20 @@
-#ifndef _TL_JSONWRITER_H
-#define _TL_JSONWRITER_H
+#ifndef _WS_JSONWRITER_H
+#define _WS_JSONWRITER_H
 
 #include "BasicTypes.h"
-#include "LibScriptExportOs.h"
+#include "LibUtilExportOs.h"
 #include "RapidWrapper.h"
 
 #include <functional>
 #include <string>
 
-namespace TL
+namespace WS
 {
-namespace LibScript
+namespace Util
 {
 class Scriptable;
 
-class LIBSCRIPT_EXPORT JsonWriter
+class LIBUTIL_EXPORT JsonWriter
 {
 protected:
     std::vector<RapidWrapper::RapidWrapperPair> mWrapperStack;
@@ -109,7 +109,7 @@ private:
     void popBack();
 };
 
-} // namespace LibScript
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
 #endif

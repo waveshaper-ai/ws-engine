@@ -1,5 +1,5 @@
-#ifndef _TL_FORMATPACK_H
-#define _TL_FORMATPACK_H
+#ifndef _WS_FORMATPACK_H
+#define _WS_FORMATPACK_H
 
 #include "Constants.h"
 #include "FormatException.h"
@@ -14,9 +14,9 @@
 #include <string>
 #include <type_traits>
 
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
 namespace Format
 {
@@ -89,7 +89,7 @@ std::string convertFormatPack(StrType const& fmtString, std::size_t const offset
 }
 
 } // namespace Format
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
-#endif // _TL_FORMATPACK_H
+#endif // _WS_FORMATPACK_H
