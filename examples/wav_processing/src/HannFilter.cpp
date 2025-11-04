@@ -2,6 +2,9 @@
 #include "Constants.h"
 #include <cmath>
 #include <cstring>
+#include <iostream>
+#include <chrono>
+#include <iomanip>
 
 namespace
 {
@@ -13,6 +16,13 @@ HannFilter::HannFilter(u32 const filterWindowSize) : mWindowSize{filterWindowSiz
 {
     std::memset(mOverlapBuffer.get(), 0, mWindowSize);
     std::memset(mModelInputBuffer.get(), 0, mWindowSize);
+    
+}
+
+bool HannFilter::applyLastFilter(float* outSamples)
+{
+    std::memcpy(outSamples, mOverlapBuffer.get(), mWindowSize * sizeof(float));
+    return true;
 }
 
 bool HannFilter::applyFilter(float* dataSamples, u32 sampleCnt, AudioModel& model, float* outSamples)
@@ -21,7 +31,6 @@ bool HannFilter::applyFilter(float* dataSamples, u32 sampleCnt, AudioModel& mode
     {
         return false;
     }
-
     // Process first half of data [0 - mHopSize] in dataSamples
     if(applyFilterInternal(dataSamples, mHopSize, model, outSamples))
     {
@@ -39,16 +48,17 @@ bool HannFilter::applyFilterInternal(float* dataSamples, u32 sampleCnt, AudioMod
         return false;
     }
 
-    // Channel 0: read old input to the first half of the model input buffer */
     std::memcpy(mModelInputBuffer.get(), mModelInputBuffer.get() + mHopSize, mHopSize * sizeof(float));
     std::memcpy(mModelInputBuffer.get() + mHopSize, dataSamples, mHopSize * sizeof(float));
 
     std::unique_ptr<float> windowOut{new float[mWindowSize]{0.0}};
+
     model.process(mModelInputBuffer.get(), windowOut.get());
+
 
     for(u32 s = 0; s < mWindowSize; s++)
     {
-        float multiplier = 0.5f * (1 - std::cos(2 * TL::LibCore::Constants::Pi<float>{}() * s / (mWindowSize - 1)));
+        float multiplier = 0.5f * (1 - std::cos(2 * WS::Util::Constants::Pi<float>{}() * s / (mWindowSize - 1)));
         windowOut.get()[s] *= multiplier;
     }
 

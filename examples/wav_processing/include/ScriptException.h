@@ -1,18 +1,18 @@
-#ifndef _TL_SCRIPTEXCEPTION_H
-#define _TL_SCRIPTEXCEPTION_H
+#ifndef _WS_SCRIPTEXCEPTION_H
+#define _WS_SCRIPTEXCEPTION_H
 
-#include "LibScriptExportOs.h"
+#include "LibUtilExportOs.h"
 #include "ComponentException.h"
 
-namespace TL
+namespace WS
 {
-namespace LibScript
+namespace Util
 {
-/// Class to handle exceptions in LibScript.
-class LIBSCRIPT_EXPORT ScriptException final : public LibCore::ComponentException
+/// Class to handle exceptions in Util.
+class LIBUTIL_EXPORT ScriptException final : public Util::ComponentException
 {
 public:
-    static constexpr char const* const LibScriptComp{"LibScriptComp"};
+    static constexpr char const* const LibUtilComp{"LibUtilComp"};
 
     enum class ExcType : u32
     {
@@ -37,7 +37,7 @@ public:
         return mType;
     }
 
-    inline std::string const& getCompName() const { return LibCore::ComponentException::getCompName(); }
+    inline std::string const& getCompName() const { return Util::ComponentException::getCompName(); }
 
 private:
     inline std::string getErrorMessage(ExcType type)
@@ -54,7 +54,7 @@ private:
     ExcType mType;
 };
 
-} // namespace LibScript
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
 #endif

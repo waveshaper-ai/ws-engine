@@ -1,11 +1,11 @@
-#ifndef _TL_CONSTANT_H__
-#define _TL_CONSTANT_H__
+#ifndef _WS_CONSTANT_H__
+#define _WS_CONSTANT_H__
 
 #include "BasicTypes.h"
 
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
 namespace Constants
 {
@@ -74,7 +74,7 @@ constexpr bool isAlphaNumeric(char const c)
 }
 
 } // namespace Constants
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
-#endif //_TL_CONSTANT_H__
+#endif //_WS_CONSTANT_H__

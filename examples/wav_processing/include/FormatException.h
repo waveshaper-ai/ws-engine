@@ -1,11 +1,11 @@
-#ifndef _TL_FORMATEXCEPTION_H
-#define _TL_FORMATEXCEPTION_H
+#ifndef _WS_FORMATEXCEPTION_H
+#define _WS_FORMATEXCEPTION_H
 
 #include "Exception.h"
 
-namespace TL
+namespace WS
 {
-namespace LibCore
+namespace Util
 {
 namespace Format
 {
@@ -40,7 +40,7 @@ inline void throwFormatExcep(std::string&& message)
 }
 
 } // namespace Format
-} // namespace LibCore
-} // namespace TL
+} // namespace Util
+} // namespace WS
 
-#endif // _TL_FORMATEXCEPTION_H
+#endif // _WS_FORMATEXCEPTION_H

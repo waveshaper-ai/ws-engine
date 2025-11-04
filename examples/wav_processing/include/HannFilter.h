@@ -17,7 +17,7 @@ public:
     /// @param outSamples an output buffer allocated for "filterWindowSize" samples.
     /// @return success / failed
     bool applyFilter(float* dataSamples, u32 sampleCnt, AudioModel& model, float* outSamples);
-
+    bool applyLastFilter(float* outSamples);
 private:
     bool applyFilterInternal(float* dataSamples, u32 sampleCnt, AudioModel& model, float* outSamples);
 
@@ -31,6 +31,7 @@ private:
 
     /// Declare and zero-fill the model input buffer
     std::unique_ptr<float> mModelInputBuffer;
+
 };
 
 } // namespace WS

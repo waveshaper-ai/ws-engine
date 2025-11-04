@@ -14,7 +14,7 @@ public:
     static std::string getVersion();
 
     /// @brief  New entry point which re-use the lib-streamer code.
-    static int processFile(TL::LibCore::CmdLineParser& parser);
+    static int processFile(WS::Util::CmdLineParser& parser);
 };
 
 } // namespace WS
