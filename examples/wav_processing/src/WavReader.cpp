@@ -5,6 +5,7 @@
 #include <climits>
 #include <cstring>
 #include <memory>
+#include <filesystem>
 
 /* MAX_READ_BUF_LEN is a constant for how many bytes to read per sample.
  * Should be enough fo:
@@ -113,7 +114,11 @@ bool WavReader::load(std::string const& filePath, std::string const& outputFile)
     writeToOutput = true;
 
     wavFile.open(filePath, std::ios_base::binary);
-
+    std::filesystem::path folder = std::filesystem::path(outputFile).parent_path();
+    if(!std::filesystem::exists(folder)){
+        std::cout<<"Parent directory does not exist! Creating path..."<<std::endl;
+    }
+    std::filesystem::create_directories(folder);
     outWavFile = fopen(outputFile.c_str(), "wb");
 
     checkForRiffHeader();
