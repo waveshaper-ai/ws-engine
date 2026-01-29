@@ -45,7 +45,7 @@ int StreamManager::processFile(WS::Util::CmdLineParser& parser)
         return 1;
     }
 
-    audioModel->setLicense("Demo Waveshaper");
+    audioModel->setLicense("Waveshaper AI");
 
     std::string modelName;
     parser.getValue("-m", modelName);
