@@ -55,6 +55,41 @@ void convertFloatTo24Bits(unsigned char* buf, float* f)
     buf[0] = static_cast<uint8_t>(reint & 0xFF);
 }
 
+float convert32BitsToFloat(unsigned char* b, unsigned short format)
+{
+    // If format is 3 (IEEE Float), just copy the bytes directly into a float
+    if (format == 3) {
+        float f;
+        std::memcpy(&f, b, 4);
+        return f;
+    }
+
+    // Otherwise, treat as 32-bit Signed Integer PCM
+    // Use uint32_t for the shift to avoid undefined behavior, then cast
+    uint32_t val = (static_cast<uint32_t>(b[3]) << 24) | 
+                   (static_cast<uint32_t>(b[2]) << 16) | 
+                   (static_cast<uint32_t>(b[1]) << 8)  | 
+                    static_cast<uint32_t>(b[0]);
+    
+    return static_cast<float>(static_cast<int32_t>(val)) / 2147483648.0f;
+}
+
+void convertFloatTo32Bits(unsigned char* buf, float* f, unsigned short format)
+{
+    if (format == 3) {
+        std::memcpy(buf, f, 4);
+        return;
+    }
+
+    // PCM Integer 32-bit
+    float clamped = std::clamp(*f, -1.0f, 1.0f);
+    int32_t reint = static_cast<int32_t>(clamped * 2147483647.0f);
+    buf[0] = reint & 0xFF;
+    buf[1] = (reint >> 8) & 0xFF;
+    buf[2] = (reint >> 16) & 0xFF;
+    buf[3] = (reint >> 24) & 0xFF;
+}
+
 float clamp(float value, float minValue, float maxValue)
 {
     value = std::min(value, maxValue);
@@ -530,14 +565,10 @@ bool WavReader::getNextAudioBlock(float* bufferToFill, int channel, size_t buffe
 
 bool WavReader::writeToFile(float* bufferToFileL, float* bufferToFileR, size_t bufferSize)
 {
-    if(bufferToFileL == nullptr)
-    {
-        return false;
-    }
+    if(bufferToFileL == nullptr) return false;
 
     auto buffSize = 0;
     auto remainingSamples = getNumSamplesPerChannel() - writtenSamples;
-
     mBufferSize = bufferSize;
 
     if(remainingSamples < mBufferSize)
@@ -563,8 +594,6 @@ bool WavReader::writeToFile(float* bufferToFileL, float* bufferToFileR, size_t b
     {
         for(int writeSampleCtr = 0; writeSampleCtr < buffSize; writeSampleCtr++)
         {
-            /* Sample for chan 0 */
-
             float chanTmp = clamp(bufferToFileL[writeSampleCtr], -1., 1.);
             uint8_t chanBytes[3];
             convertFloatTo24Bits(chanBytes, &chanTmp);
@@ -574,30 +603,49 @@ bool WavReader::writeToFile(float* bufferToFileL, float* bufferToFileR, size_t b
             fwrite(&chanBytes[2], 1, 1, outWavFile);
         }
     }
+    else if(bitsPerSample == 32)
+    {
+        for(int writeSampleCtr = 0; writeSampleCtr < buffSize; writeSampleCtr++)
+        {
+            float chanTmp = clamp(bufferToFileL[writeSampleCtr], -1., 1.);
+            uint8_t chanBytes[4];
+            // FIXED: Added audioFormat argument
+            convertFloatTo32Bits(chanBytes, &chanTmp, audioFormat);
+
+            fwrite(chanBytes, 4, 1, outWavFile);
+        }
+    }
 
     writtenSamples += buffSize;
-
     return true;
 }
 
 void WavReader::sampleToFile(float sample)
 {
-    int16_t chanIntSample = static_cast<int16_t>(sample * static_cast<float>(32767.));
+    int16_t chanIntSample = static_cast<int16_t>(sample * 32767.0f);
 
-    uint8_t chanBytes[3];
+    uint8_t chanBytes[4]; // Increased to 4 to be safe for 32-bit
     uint8_t elementSize{2};
+
     if(bitsPerSample == 16)
     {
         chanBytes[1] = (chanIntSample >> 8) & 0xff;
         chanBytes[0] = chanIntSample & 0xff;
+        elementSize = 2;
     }
-    else
+    else if(bitsPerSample == 32)
     {
-        elementSize = 3;
+        // FIXED: Added audioFormat argument
+        convertFloatTo32Bits(chanBytes, &sample, audioFormat);
+        elementSize = 4;
+    }    
+    else // 24-bit
+    {
         convertFloatTo24Bits(chanBytes, &sample);
+        elementSize = 3;
     }
 
-    fwrite(&chanBytes[0], elementSize, 1, outWavFile);
+    fwrite(chanBytes, elementSize, 1, outWavFile);
 }
 
 bool WavReader::enoughSamplesLeft()
@@ -827,8 +875,8 @@ void WavReader::checkForExceptions(int channel, size_t bufferSize)
     /* Let's kill the program if we get a 24-bit audio file or one
      * with > 2 channels */
 
-    if(bitsPerSample > 24)
-        throw std::runtime_error("currently 16-bit and 24-bit supported");
+    if(bitsPerSample > 32)
+        throw std::runtime_error("currently 16-bit, 24-bit and 32-bit supported");
 
     if(numChannels > 2)
         throw std::runtime_error("currently mono or stereo only");
@@ -840,59 +888,49 @@ void WavReader::checkForExceptions(int channel, size_t bufferSize)
 void WavReader::copyToBuffer(size_t bytesToRead, float* bufferToFill, size_t numSamplesToCopy)
 {
     size_t dataBytesRead = 0;
-
-    /* Declare a buffer that is reasonably sized */
     uint8_t buffer[MAX_READ_BUF_LEN];
 
-    /* Shouldnt' be more than 3 bytes in the case of a 24-bit depth sample */
+    float sampleCh0 = 0.0f;
+    float sampleCh1 = 0.0f;
+
     if(bytesToRead > sizeof(buffer))
         throw std::runtime_error("inadequate read buffer size");
 
-    /* Flag to reduce the number of continous clipping reports..*/
-    dataBytesRead = 0;
-
-    float sampleCh0 = 0.0;
-    float sampleCh1 = 0.0;
-
-    // clear bufferToFill before use it
     memset(bufferToFill, 0, mBufferSize * sizeof(float));
-
     if(bufferToFillR != nullptr)
-        memset(bufferToFill, 0, mBufferSize * sizeof(float));
+        memset(bufferToFillR, 0, mBufferSize * sizeof(float)); // Fixed: was clearing bufferToFill twice
 
     int index = 0;
     int numBytes = bitsPerSample / 8;
 
-    // this is the whole file for JUST data
-    while(dataBytesRead + bytesToRead < numSamplesToCopy * numBytes * numChannels + 1)
+    while(index < numSamplesToCopy && (dataBytesRead + bytesToRead <= chk.size))
     {
-        /* Read sample bytes to the buffer */
         read(wavFile, buffer, bytesToRead, &chk);
-
-        /* Increment the dataBytesRead counter */
         dataBytesRead += bytesToRead;
 
-        /* Need to convert the bytes to float in 2 cases.. 16 bit and 24 bit.. */
         switch(bitsPerSample)
         {
-        case 16:
-            sampleCh0 = convert16BitsToFloat(buffer);
-            if(numChannels == maxNumOfChannels)
-                sampleCh1 = convert16BitsToFloat(&buffer[numBytes]);
-            break;
-        case 24:
-            sampleCh0 = convert24BitsToFloat(buffer);
-            if(numChannels == maxNumOfChannels)
-                sampleCh1 = convert16BitsToFloat(&buffer[numBytes]);
-            break;
-        default:
-            std::cout << "ERROR! Unsupported bit depth of: " << bitsPerSample << std::endl;
-            exit(0);
-            break;
+            case 16:
+                sampleCh0 = convert16BitsToFloat(buffer);
+                if(numChannels == 2)
+                    sampleCh1 = convert16BitsToFloat(&buffer[numBytes]);
+                break;
+            case 24:
+                sampleCh0 = convert24BitsToFloat(buffer);
+                if(numChannels == 2)
+                    sampleCh1 = convert24BitsToFloat(&buffer[numBytes]); // FIXED: was convert16
+                break;
+            case 32:
+                sampleCh0 = convert32BitsToFloat(buffer, audioFormat); // Pass format
+                if(numChannels == 2)
+                    sampleCh1 = convert32BitsToFloat(&buffer[numBytes], audioFormat);
+                break;
+            default:
+                return;
         }
 
         bufferToFill[index] = sampleCh0;
-        if(numChannels == maxNumOfChannels)
+        if(numChannels == 2 && bufferToFillR != nullptr)
             bufferToFillR[index] = sampleCh1;
 
         numSamplesRead++;
