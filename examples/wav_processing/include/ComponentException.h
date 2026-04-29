@@ -1,8 +1,9 @@
-#ifndef _WS_COMPONENTEXCEPTION_H
-#define _WS_COMPONENTEXCEPTION_H
+#pragma once
+
 #include "Exception.h"
 #include "StrFormat.h"
 #include <exception>
+
 namespace WS
 {
 namespace Util
@@ -33,4 +34,3 @@ private:
 };
 } // namespace Util
 } // namespace WS
-#endif

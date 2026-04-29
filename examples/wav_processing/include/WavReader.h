@@ -1,17 +1,25 @@
 #pragma once
+#include "BasicTypes.h"
+#include "LibUtilExportOs.h"
 #include <fstream>
 #include <iostream>
-/* MAX_READ_BUF_LEN is a constant for how many bytes to read per sample.
- * Should be enough fo:
- * (bytes per sample) * (num channels)
- *
- * (3 bytes) * (2) = 6 bytes per read, as we are reading one sample at a time
- * 256 is overkill.. but there could be many channels
- */
+
+/// MAX_READ_BUF_LEN is a constant for how many bytes to read per sample.
+/// Should be enough fo:
+/// (bytes per sample) * (num channels)
+/// (3 bytes) * (2) = 6 bytes per read, as we are reading one sample at a time
+/// 256 is overkill.. but there could be many channels
 #define MAX_READ_BUF_LEN 256
+
 namespace WS
 {
-class WavReader
+namespace Util
+{
+class AudioPacket;
+class AudioSpec;
+
+/// Class used to read/write simple Wav files of type 24 bits to float.
+class LIBUTIL_EXPORT WavReader
 {
 public:
     struct chunkHdr
@@ -26,12 +34,15 @@ public:
     ~WavReader();
     bool load(std::string const& filePath);
     bool load(std::string const& filePath, std::string const& outputFile);
+    bool createFile(std::string const& outputFile);
     size_t getNumSamplesPerChannel();
     int getNumberOfChannels();
     int getSampleRate();
     int getBitDepth();
-    bool getNextAudioBlock(float* bufferToFill, int channel = 0, size_t bufferSize = 0);
+    bool getNextAudioBlock(float* bufferToFill, int channel = 0, size_t bufferSize = 0, u32* sampleCntFilled = nullptr);
+    bool getNextAudioBlock(AudioPacket& packetToFill);
     bool writeToFile(float* bufferToFileL, float* bufferToFileR = nullptr, size_t bufferSize = 0);
+    bool writeToFile(AudioPacket const& audioPacket);
     size_t getWrittenSamples();
     size_t getBufferSize();
 
@@ -47,7 +58,7 @@ private:
     void findDataPosition();
     void skip(std::ifstream& f, std::streamsize size, chunkHdr* parent);
     bool enoughSamplesLeft();
-    void fillDataBuffer(float* bufferToFill, bool enoughSamplesToFillBuffer = true);
+    void fillDataBuffer(float* bufferToFill, u32* totalSamplesCopied = nullptr);
     void copyToBuffer(size_t bytesToRead, float* bufferToFill, size_t numSamplesToCopy);
     void checkForExceptions(int channel = 0, size_t bufferSize = 0);
     void sampleToFile(float sample);
@@ -59,7 +70,8 @@ private:
     unsigned int sampleRate, byteRate;
     unsigned short audioFormat, numChannels, blockAlign, bitsPerSample, extraSize;
 
-    FILE* outWavFile = nullptr;
+    FILE* outWavFile{nullptr};
+    std::string mOutWavFilename{};
     size_t srcRiffSize = 0;
     unsigned int srcDataSize = 0;
     size_t dataHdrSizeOffset = 0;
@@ -81,6 +93,7 @@ private:
     unsigned int dataPosition = 0;
 
 public:
+    bool createFile(std::string const& filePathName, AudioSpec const& audioSpec);
     bool createFileFromData(std::string const& filePath, struct WavReader::chunkHdr& riff, struct WavReader::chunkHdr& wave, struct WavReader::chunkHdr& chk,
         int fmtPosition, int dataPosition, int extraSize, unsigned short audioFormat, unsigned short numChannels, unsigned short sampleRate, unsigned int byteRate, unsigned short bitsPerSample, unsigned short blockAlign);
 
@@ -102,5 +115,7 @@ public:
 
     bool writeSpecToJSON(std::string const& jsonFileName);
     // bool createFileFromJson(std::string const &inJsonConfigPathName, std::string outputFileName);
+    bool writeWavHeader(std::string const& outputFN);
 };
+} // namespace Util
 } // namespace WS
