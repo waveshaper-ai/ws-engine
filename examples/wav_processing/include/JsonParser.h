@@ -24,8 +24,8 @@ public:
     /// Loads-in the given "pathToFile" and the reads-in the given "subValueTag" into
     /// the "Scriptable". Throws ScriptException on issues.
     /// A JsonReader object is used to orchestrate the reading of the data in the Scriptable objects.
-    static bool parseScript(std::string const& pathToFile, std::string const& subValueTag, Scriptable&, bool silentExceptions = false);
-    static bool parseScriptStr(std::string const& jsonContent, std::string const& subValueTag, Scriptable&, bool silentExceptions = false);
+    static bool parseScript(std::string const& pathToFile, std::string const& subValueTag, Scriptable&, bool silenceExceptions=false);
+    static bool parseScriptStr(std::string const& jsonContent, std::string const& subValueTag, Scriptable&, bool silenceExceptions=false);
 
     /// Reads-in/write-out a Json file and transfer its content to/from given outJSonString/inJsonString.
     static bool readFileInStr(std::string const& pathToFile, std::string& outJsonString);

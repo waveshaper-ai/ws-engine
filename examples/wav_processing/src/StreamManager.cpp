@@ -47,18 +47,39 @@ int StreamManager::processFile(WS::Util::CmdLineParser& parser)
 
     audioModel->setLicense("Demo Waveshaper");
 
+    std::string inPathName;
     std::string modelName;
-    parser.getValue("-m", modelName);
+    parser.getValue("inputFile", inPathName);
+    if(inPathName.find(".json") != std::string::npos)
+    {
+        // Make sure to prepare with the .json file.
+        modelName = inPathName;
+    }
+    else
+    {
+        parser.getValue("-m", modelName);
 #ifdef OS_WINDOWS
-    modelName += "\\";
+        modelName += "\\";
 #else
-    modelName += "/";
+        modelName += "/";
 #endif
+    }
+
     if(!audioModel->prepare(modelName))
     {
-        std::string error{"Could not prepare the model properly. Check model file name as -m option."};
+        std::string error{"Could not prepare the pipeline or model properly. Check pipeline configuration errors or the model file name as -m option."};
         std::cout << "ERROR: " << error << std::endl;
         return 1;
+    }
+
+    if(inPathName.find(".json") != std::string::npos)
+    {
+        // This is a full pipeline. RUn it on its own.
+        std::cout << "Start processing pipeline file: " << modelName << std::endl;
+
+        std::string inWavPathName, outWavPathName;
+        bool success{audioModel->process(nullptr, nullptr)};
+        return success ? 0 : 1;
     }
 
     size_t numOfParams{audioModel->getNumberOfParams()};
@@ -75,12 +96,10 @@ int StreamManager::processFile(WS::Util::CmdLineParser& parser)
         audioModel->setParamValueAt(0, pVal);
     }
 
-    WS::WavReader streamer;
-    std::string inWavPathName, outWavPathName;
+    WS::Util::WavReader streamer;
+    std::string inWavPathName{inPathName}, outWavPathName;
     std::string modelType = audioModel->getModelType();
-
-    parser.getValue("inputFileWAV", inWavPathName);
-    parser.getValue("outputFileWAV", outWavPathName);
+    parser.getValue("-o", outWavPathName);
     if(!streamer.load(inWavPathName, outWavPathName))
     {
         std::string error{"Could not load the given file for input: "};
@@ -135,7 +154,6 @@ int StreamManager::processFile(WS::Util::CmdLineParser& parser)
     bool fileCreated{true};
     while(outputSamples < totalSamples)
     {
-
         if(!streamer.getNextAudioBlock(bufferL.get(), 0, samplesBufferSize)) // on last call, reminder unused samples are set to 0
         {
             // Abort reading file.
