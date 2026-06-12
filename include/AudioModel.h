@@ -1,10 +1,10 @@
 /**
  * @file AudioModel.h
  * @brief Main interface for the WaveShaper Infernce Engine
- * 
+ *
  * The WaveShaper Inference Engine provides developers with simple access to powerful
  * audio processing AI models (such as MicUpgrade, SpectralEnhancement, etc).
- * The WaveShaper Inference Engine is a lightweight and cross-platform library that can 
+ * The WaveShaper Inference Engine is a lightweight and cross-platform library that can
  * be easily integrated into applications. The library can load pre-trained AI models and use these for
  * audio processing to perform various tasks.
  */
@@ -12,6 +12,7 @@
 #ifndef _WS_AUDIOMODEL_H
 #define _WS_AUDIOMODEL_H
 
+#include "AudioPacket.h"
 #include "LibAiExportOs.h"
 #include <functional>
 #include <memory>
@@ -22,32 +23,34 @@ class AudioModelUT;
 namespace WS
 {
 class Logger;
+class LayerBufferBase;
+class PipelineManager;
 
 /**
  * @class AudioModel
  * @brief Main entry point class to handle AI audio processing
- * 
+ *
  * The AudioModel class provides the primary interface for loading and using
  * AI models for audio processing. It supports various activation functions,
  * parameter setting, and model processing capabilities.
- * 
+ *
  * @code{.cpp}
  * // Basic usage example
  * static const std::string ACTIVATION{"tanh"};
  * std::unique_ptr<AudioModel> audioModel{new AudioModel(ACTIVATION)};
- * 
+ *
  * // Load and prepare the model binaries (.dat files)
  * std::string modelName = "/path/to/model/";
  * if(!audioModel->prepare(modelName)) {
  *     std::cout << "ERROR: Could not prepare the model properly." << std::endl;
  *     return 1;
  * }
- * 
+ *
  * // Set parameters if needed
  * if(audioModel->getNumberOfParams() > 0) {
  *     audioModel->setParamValueAt(0, 0.5f);
  * }
- * 
+ *
  * // Process audio
  * audioModel->process(inputBuffer, outputBuffer);
  * @endcode
@@ -58,7 +61,7 @@ public:
     /**
      * @brief Constructor for AudioModel
      * @param activation The activation function to use (default: "tanh")
-     * 
+     *
      * Creates a new AudioModel instance with the specified activation function.
      * Unless otherwise stated, most of the WS AI models use "tanh"
      */
@@ -72,15 +75,16 @@ public:
     AudioModel(const AudioModel&) = delete;
     AudioModel& operator=(const AudioModel&) = delete;
 
-
-      /**
+    /**
      * @brief Loads and prepares the model for processing
      * @param modelName Path to the model directory
+     * @param secondModelName Path of the second model, if needed.
+     * @param useHannFilter Conditionnally apply the Hann filter internally, if needed.
      * @return true if successful, false if the model cannot be found or loaded
-     * 
+     *
      * Prepare needs to be called once to allocate the proper layers before
      * calling process() multiple times for processing audio frames.
-     * 
+     *
      * @code{.cpp}
      * std::string modelPath = "/path/to/model/";
      * if(!audioModel->prepare(modelPath)) {
@@ -89,12 +93,12 @@ public:
      * }
      * @endcode
      */
-    bool prepare(std::string const& modelName);
+    bool prepare(std::string const& modelName, std::string const& secondModelName = "", bool useHannFilter = false);
 
     /**
      * @brief Adds a new parameter to the model
      * @param param Name of the parameter
-     * 
+     *
      * Parameters will be added in order and indexed according to their order:
      * - First parameter added is index 0
      * - Second parameter added is index 1
@@ -103,9 +107,9 @@ public:
     void setNewParam(std::string const& param);
 
     /**
-     * @brief Adds license 
+     * @brief Adds license
      * @param license License to use
-     * 
+     *
      * This is just a placeholder for a license checker
      * We need a way to manage the license
      */
@@ -139,21 +143,21 @@ public:
      */
     void setParamValueAt(std::string const& param, float value);
 
-    void setBufferManual(float* inputPrev, float* input, float* inputNext=nullptr);
-    
+    void setBufferManual(float* inputPrev, float* input, float* inputNext = nullptr);
+
     /**
      * @brief Processes audio through the model
      * @param input Pointer to input buffer of audio samples (size must match getFrameLength())
      * @param output Pointer to output buffer where processed audio will be stored
 
      * @return true if processing was successful, false otherwise
-     * 
+     *
      * @code{.cpp}
      * // Process example
      * float* inputBuffer = new float[audioModel->getFrameLength()];
      * float* outputBuffer = new float[audioModel->getFrameLength()];
      * // Fill inputBuffer with audio samples...
-     * 
+     *
      * if(audioModel->process(inputBuffer, outputBuffer)) {
      *     // Use processed audio in outputBuffer...
      * }
@@ -161,11 +165,33 @@ public:
      */
     bool process(const float* input, float* output);
 
-    // Accessors
+    /**
+     * @brief Processes audio through the model
+     * @param input Pointer to an AudioPacket which holds data for up-to 2 stereo channels (size must match getFrameLength())
+     * @param output Pointer to an AudioPacket which holds data for up-to 2 stereo channels where processed audio data is stored when successful, nullptr otherwise.
 
+     * @return true if processing was successful, false otherwise
+     *
+     * @code{.cpp}
+     * // Process example (true below is for stereo)
+     * WS::Util::AudioPacket input{audioModel->getFrameLength(), true};
+     * // Fill inputBuffer with audio samples...
+     * std::memcpy(input.bufL(), leftAudioSamples, maxSizeOfFrameLenght);
+     * if(audio.isStereo())
+     *      std::memcpy(input.buR(), rightAudioSamples, maxSizeOfFrameLenght);
+     * WS::Util::AudioPacket *output{nullptr};
+     * if(audioModel->process(input, output)) {
+     *     // Use processed audio in output -- upon success, pointer will be filled...
+     *      output->bufL()... output->bufR()
+     * }
+     * @endcode
+     */
+    bool process(Util::AudioPacket const& inputAudio, Util::AudioPacket*& outputAudio);
+
+    // Accessors
     std::string const& getModelType() const;
-    
-     /**
+
+    /**
      * @brief Gets the frame length required for processing
      * @return Number of samples per frame
      */
@@ -202,7 +228,7 @@ public:
      * @param logger Pointer to a Logger instance
      */
     void setLogger(WS::Logger* logger);
-    
+
     /**
      * @brief Gets validation values for a specific buffer
      * @param bufferName Name of the buffer
@@ -210,19 +236,24 @@ public:
      * @param sampleCnt Output parameter to receive sample count
      * @return Pointer to the validation values array
      */
-    float* getValidationValues(const std::string& bufferName, size_t& filterCnt, size_t& sampleCnt ,size_t ctxIdx = 1);
-
+    float* getValidationValues(const std::string& bufferName, size_t& filterCnt, size_t& sampleCnt, size_t ctxIdx = 1);
+    LayerBufferBase* getBuffer(size_t id);
+    LayerBufferBase* getBuffer(std::string const& bufferName);
     class Impl;
 
 private:
-    Impl* pImpl;
-
     float oneminus(float x);
     float softplus(float x);
     float* getBreakPoints(size_t numBreakPoints);
 
+private:
+    Impl * pImpl;
+    bool mOwnPimpl;
+    std::unique_ptr<PipelineManager> mPipeline;
+
     WS::Logger* mLogger{nullptr};
 
+    Util::AudioPacket mOutputPacket;
     friend class ::AudioModelUT;
 };
 } // namespace WS

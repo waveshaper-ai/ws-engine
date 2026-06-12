@@ -16,7 +16,6 @@ public:
         return mMessage.c_str();
     }
 
-protected:
     explicit Exception(std::string&& message) noexcept : std::exception{}
     {
         try
